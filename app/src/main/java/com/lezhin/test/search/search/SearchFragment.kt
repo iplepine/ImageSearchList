@@ -5,7 +5,6 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
@@ -13,6 +12,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxbinding3.widget.textChangeEvents
 import com.lezhin.test.search.R
+import com.lezhin.test.search.data.image.ImageRepository
 import com.lezhin.test.search.detail.DetailFragment
 import com.lezhin.test.search.search.viewmodel.SearchViewModel
 import com.orhanobut.logger.Logger
@@ -110,14 +110,6 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
     private fun initViewModel() {
         viewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
 
-        /*viewModel.isSearching.observe(this, Observer {
-            if (it) {
-                showProgress()
-            } else {
-                hideProgress()
-            }
-        })*/
-
         viewModel.emptyMessageVisible.observe(this, Observer {
             emptyMessage.visibility = if (it) {
                 View.VISIBLE
@@ -128,9 +120,12 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
     }
 
     private fun onClickDeleteQueryButton() {
-        queryInput.setText("")
+        var i = 10
+        i++
+
+        /*queryInput.setText("")
         viewModel.clear()
-        adapter?.notifyDataSetChanged()
+        adapter?.notifyDataSetChanged()*/
     }
 
     private fun search(query: String) {
@@ -152,7 +147,10 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
 
         searchDisposable = viewModel.search(query)
             .subscribe(
-                { onSearchFinished() },
+                {
+                    onSearchFinished()
+                    recyclerView?.scrollToPosition(0)
+                },
                 { Logger.e(it.toString()) }
             )?.also { compositeDisposable.add(it) }
     }
@@ -160,10 +158,6 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
     private fun onSearchFinished() {
         Logger.d("on success search")
         adapter?.notifyDataSetChanged()
-
-        if (viewModel.isEnd()) {
-            Toast.makeText(context, "마지막 응답입니다", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun showProgress() {
@@ -177,9 +171,12 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
     }
 
     override fun onClickItem(position: Int) {
-        viewModel.getImage(position)?.apply {
+        Logger.i(
+            "click item : $position  total count : ${ImageRepository.totalCount}"
+        )
+        viewModel.getImage(position)?.also {
             fragmentManager?.beginTransaction()
-                ?.replace(R.id.root, DetailFragment.newInstance(image_url, display_sitename))
+                ?.replace(R.id.root, DetailFragment.newInstance(it))
                 ?.addToBackStack("detail")
                 ?.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 ?.commitAllowingStateLoss()
@@ -193,7 +190,10 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
                     {
                         onSearchFinished()
                     },
-                    { Logger.e(it.toString()) })
+                    {
+                        Logger.e(it.toString())
+                        adapter?.notifyDataSetChanged()
+                    })
         }
     }
 }

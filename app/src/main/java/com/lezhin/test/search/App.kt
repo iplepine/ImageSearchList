@@ -6,12 +6,16 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig
 import com.facebook.imagepipeline.listener.RequestListener
 import com.facebook.imagepipeline.listener.RequestLoggingListener
 import com.facebook.imagepipeline.request.ImageRequest
+import com.github.piasy.biv.BigImageViewer
+import com.github.piasy.biv.loader.fresco.FrescoImageLoader
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
+import io.realm.Realm
+import io.realm.RealmConfiguration
 
 class App : Application() {
     companion object {
-        lateinit var instance : App
+        lateinit var instance: App
     }
 
     override fun onCreate() {
@@ -19,11 +23,22 @@ class App : Application() {
         instance = this
 
         initLogger()
+
+        initRealm()
         initFresco()
+        BigImageViewer.initialize(FrescoImageLoader.with(applicationContext))
     }
 
     private fun initLogger() {
         Logger.addLogAdapter(AndroidLogAdapter())
+    }
+
+    private fun initRealm() {
+        Realm.init(applicationContext)
+        val realmConfig = RealmConfiguration.Builder()
+            .deleteRealmIfMigrationNeeded()
+            .build()
+        Realm.setDefaultConfiguration(realmConfig)
     }
 
     private fun initFresco() {

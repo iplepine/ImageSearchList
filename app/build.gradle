@@ -4,6 +4,10 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
+apply plugin: 'realm-android'
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -62,6 +66,8 @@ dependencies {
 
     //fresco
     implementation 'com.facebook.fresco:fresco:2.0.0+'
+    implementation 'com.github.piasy:BigImageViewer:1.6.2'
+    implementation 'com.github.piasy:FrescoImageLoader:1.6.2'
 
     // logger
     implementation 'com.orhanobut:logger:2.2.0'

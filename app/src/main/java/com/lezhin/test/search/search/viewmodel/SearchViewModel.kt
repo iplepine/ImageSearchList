@@ -50,8 +50,8 @@ class SearchViewModel : ViewModel() {
         return KakaoApi.createService(SearchService::class.java)
             .getImages(query, page)
             .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
             .flatMap { ImageRepository.cacheImage(query, page, it) }
+            .observeOn(AndroidSchedulers.mainThread())
             .doOnSuccess {
                 onSearchSuccess(it)
             }
@@ -68,7 +68,7 @@ class SearchViewModel : ViewModel() {
         checkEmpty()
 
         Logger.i(
-            "search result : $query\n     page : $page" +
+            "search result : $query\n     page : $page\n" +
                     "meta : ${imageResponse.meta}"
         )
     }

@@ -3,7 +3,10 @@ package com.lezhin.test.search.data.image
 import android.util.SparseArray
 import com.lezhin.test.search.api.kakao.response.ImageResponse
 import com.lezhin.test.search.api.kakao.response.ImageResult
+import com.lezhin.test.search.data.image.realm.ImageResultRealm
+import com.orhanobut.logger.Logger
 import io.reactivex.Single
+import io.realm.Realm
 
 object ImageRepository {
     var query: String = ""
@@ -13,7 +16,7 @@ object ImageRepository {
 
     val pagedImages: SparseArray<ArrayList<ImageResult>> = SparseArray()
 
-    const val IMAGE_COUNT_PER_PAGE = 80
+    const val IMAGE_COUNT_PER_PAGE = 5
 
     fun clear() {
         query = ""
@@ -21,6 +24,7 @@ object ImageRepository {
         page = 1
         isEnd = false
         pagedImages.clear()
+        clearDB()
     }
 
     fun getImage(index: Int): ImageResult? {
@@ -53,14 +57,44 @@ object ImageRepository {
         if (pagedImages.get(page) != null) {
             pagedImages.remove(page)
         } else {
-            this.totalCount += imageResponse.documents.size
+            //totalCount += imageResponse.documents.size
         }
 
         pagedImages.put(page, imageResponse.documents)
 
+        cacheToDB(query, page, imageResponse)
+
         return Single.just(imageResponse)
     }
 
-    /*fun cacheToFile(query: String, page: Int, imageResponse: ImageResponse): Single<ImageResponse> {
-    }*/
+    fun cacheToDB(query: String, page: Int, imageResponse: ImageResponse) {
+        Realm.getDefaultInstance()?.apply {
+            beginTransaction()
+
+            imageResponse.documents
+                .map {
+                    copyToRealmOrUpdate(ImageResultRealm.newInstance(it))
+                    Logger.i(
+                        "save to realm : $query\n" +
+                                "$it"
+                    )
+                }
+
+            totalCount = where(ImageResultRealm::class.java)
+                .findAll()
+                .size
+
+            Logger.i("cache to realm, total count : $totalCount")
+
+            commitTransaction()
+        }
+    }
+
+    fun clearDB() {
+        Realm.getDefaultInstance()?.apply {
+            beginTransaction()
+            delete(ImageResultRealm::class.java)
+            commitTransaction()
+        }
+    }
 }

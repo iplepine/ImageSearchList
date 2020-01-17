@@ -1,5 +1,6 @@
 package com.lezhin.test.search.detail
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.lezhin.test.search.R
+import com.lezhin.test.search.api.kakao.response.ImageResult
+import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.fragment_detail.*
-
 
 class DetailFragment : Fragment() {
     private lateinit var viewModel: DetailViewModel
@@ -18,11 +20,11 @@ class DetailFragment : Fragment() {
         const val KEY_IMAGE_URL = "imageUrl"
         const val KEY_IMAGE_TITLE = "title"
 
-        fun newInstance(imageUrl: String, title: String): DetailFragment {
+        fun newInstance(imageResult: ImageResult): DetailFragment {
             return DetailFragment().apply {
                 arguments = Bundle().apply {
-                    putString(KEY_IMAGE_URL, imageUrl)
-                    putString(KEY_IMAGE_TITLE, title)
+                    putString(KEY_IMAGE_URL, imageResult.image_url)
+                    putString(KEY_IMAGE_TITLE, imageResult.display_sitename)
                 }
             }
         }
@@ -50,7 +52,8 @@ class DetailFragment : Fragment() {
     private fun initViewModel() {
         viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java)
         viewModel.imageUrl.observe(this, Observer {
-            image.setImageURI(it)
+            image.showImage(Uri.parse(it))
+            Logger.i("detail image loading : $it")
         })
 
         viewModel.title.observe(this, Observer {
