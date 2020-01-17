@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.drawee.view.SimpleDraweeView
 import com.lezhin.test.search.R
@@ -75,8 +74,6 @@ class ImageResultAdapter(context: Context, var searchViewModel: SearchViewModel)
 
     inner class ImageResultViewHolder : SearchResultViewHolder {
         private val image = itemView.findViewById<SimpleDraweeView>(R.id.image)
-        private val title = itemView.findViewById<TextView>(R.id.title)
-        private val date = itemView.findViewById<TextView>(R.id.date)
 
         constructor(itemView: View) : super(itemView) {
             itemView.setOnClickListener {
@@ -90,8 +87,6 @@ class ImageResultAdapter(context: Context, var searchViewModel: SearchViewModel)
             } else {
                 image.aspectRatio = result.width.toFloat() / result.height
                 image.setImageURI(result.image_url)
-                title.text = result.display_sitename
-                date.text = result.datetime
 
                 Logger.d(
                     "bind image    position : $adapterPosition\n" +

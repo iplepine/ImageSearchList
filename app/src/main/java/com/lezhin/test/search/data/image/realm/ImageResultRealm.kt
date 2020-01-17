@@ -18,9 +18,10 @@ open class ImageResultRealm : RealmObject() {
     @PrimaryKey
     @Required
     open var pk: String = ""
+    open var index : Int = 0
 
     companion object {
-        fun newInstance(imageResult: ImageResult): ImageResultRealm {
+        fun newInstance(index: Int, imageResult: ImageResult): ImageResultRealm {
             return ImageResultRealm().apply {
                 collection = imageResult.collection
                 thumbnail_url = imageResult.thumbnail_url
@@ -32,6 +33,7 @@ open class ImageResultRealm : RealmObject() {
                 datetime = imageResult.datetime
 
                 pk = image_url + datetime
+                this.index = index
             }
         }
     }

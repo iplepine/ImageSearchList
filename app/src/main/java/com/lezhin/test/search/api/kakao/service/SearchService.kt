@@ -12,6 +12,9 @@ interface SearchService {
             val ACCURACY = "accuracy"
             val RECENCY = "recency"
         }
+
+        const val MAX_PAGE = 50
+        const val MAX_SIZE = 80
     }
 
     @GET("/v2/search/image")

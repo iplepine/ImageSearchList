@@ -3,8 +3,10 @@ package com.lezhin.test.search.detail
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -12,6 +14,7 @@ import com.lezhin.test.search.R
 import com.lezhin.test.search.api.kakao.response.ImageResult
 import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.fragment_detail.*
+
 
 class DetailFragment : Fragment() {
     private lateinit var viewModel: DetailViewModel
@@ -69,8 +72,20 @@ class DetailFragment : Fragment() {
     }
 
     private fun initActionBar() {
-        activity?.actionBar?.apply {
+        (activity as? AppCompatActivity)?.supportActionBar?.apply {
+            setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
+            title = "상세보기"
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            android.R.id.home -> {
+                fragmentManager?.popBackStack()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

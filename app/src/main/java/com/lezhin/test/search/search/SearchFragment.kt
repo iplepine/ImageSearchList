@@ -5,6 +5,7 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
@@ -51,24 +52,14 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
     override fun onPause() {
         super.onPause()
         clearDisposables()
-
-        // Scroll 저장
-        viewModel.scrollState = recyclerView?.layoutManager?.onSaveInstanceState()
+        saveScroll()
     }
 
     override fun onResume() {
         super.onResume()
         addViewDisposables()
-
-        // Scroll 복원
-        recyclerView?.layoutManager?.onRestoreInstanceState(viewModel.scrollState)
-        viewModel.scrollState = null
-    }
-
-    private fun init() {
-        initViewModel()
-        initRecyclerView()
-        initButtons()
+        initActionBar()
+        restoreScroll()
     }
 
     private fun addViewDisposables() {
@@ -77,6 +68,19 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
 
     private fun clearDisposables() {
         compositeDisposable.clear()
+    }
+
+    private fun initActionBar() {
+        (activity as? AppCompatActivity)?.supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(false)
+            title = getString(R.string.app_name)
+        }
+    }
+
+    private fun init() {
+        initViewModel()
+        initRecyclerView()
+        initButtons()
     }
 
     private fun initRecyclerView() {
@@ -110,6 +114,15 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
     private fun initViewModel() {
         viewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
 
+        // 로딩이 빨라서 프로그래스바 필요 없을 듯...
+        /*viewModel.isSearching.observe(this, Observer {
+            progress.visibility = if (it) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        })*/
+
         viewModel.emptyMessageVisible.observe(this, Observer {
             emptyMessage.visibility = if (it) {
                 View.VISIBLE
@@ -119,13 +132,19 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
         })
     }
 
-    private fun onClickDeleteQueryButton() {
-        var i = 10
-        i++
+    private fun saveScroll() {
+        viewModel.scrollState = recyclerView?.layoutManager?.onSaveInstanceState()
+    }
 
-        /*queryInput.setText("")
+    private fun restoreScroll() {
+        recyclerView?.layoutManager?.onRestoreInstanceState(viewModel.scrollState)
+        viewModel.scrollState = null
+    }
+
+    private fun onClickDeleteQueryButton() {
+        queryInput.setText("")
         viewModel.clear()
-        adapter?.notifyDataSetChanged()*/
+        adapter?.notifyDataSetChanged()
     }
 
     private fun search(query: String) {
@@ -134,7 +153,7 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
             return
         }
 
-        if (viewModel.query == query) {
+        if (query == ImageRepository.query) {
             return
         }
 
@@ -160,16 +179,6 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
         adapter?.notifyDataSetChanged()
     }
 
-    private fun showProgress() {
-        progress.visibility = View.VISIBLE
-        Logger.d("show progress")
-    }
-
-    private fun hideProgress() {
-        progress.visibility = View.GONE
-        Logger.d("hide progress")
-    }
-
     override fun onClickItem(position: Int) {
         Logger.i(
             "click item : $position  total count : ${ImageRepository.totalCount}"
@@ -185,7 +194,7 @@ class SearchFragment : Fragment(), ImageResultAdapter.OnItemClickListener,
 
     override fun onLoadMore(position: Int) {
         if (moreSearchDisposable == null || moreSearchDisposable!!.isDisposed) {
-            moreSearchDisposable = viewModel.searchMore(position)
+            moreSearchDisposable = viewModel.searchMore()
                 .subscribe(
                     {
                         onSearchFinished()
