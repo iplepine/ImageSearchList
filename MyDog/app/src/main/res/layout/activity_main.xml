@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.MainActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <Button
+            android:id="@+id/come"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이리와"></Button>
+
+        <Button
+            android:id="@+id/goAway"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="저리가"></Button>
+
+        <Button
+            android:id="@+id/sit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="앉아"></Button>
+
+        <Button
+            android:id="@+id/down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="엎드려"></Button>
+
+        <Button
+            android:id="@+id/roll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="굴러"></Button>
+
+        <Button
+            android:id="@+id/bang"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="빵"></Button>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/direction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="명령어"
+        android:textSize="30dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/dogStatusTitle"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"></TextView>
+
+    <TextView
+        android:id="@+id/dogStatusTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="현재 상태"
+        app:layout_constraintBottom_toTopOf="@id/dogStatus"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/dogStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="구르고 있는 중..."
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/actionTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dogStatus" />
+
+    <Button
+        android:id="@+id/reward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="간식 주기"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"></Button>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
