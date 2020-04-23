@@ -102,4 +102,162 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"></Button>
 
+
+    <LinearLayout
+        android:id="@+id/debugView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Action Weight"></TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SIT"></TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GO_AWAY"></TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="COME"></TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DOWN"></TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ROLL"></TextView>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LIE"></TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"></TextView>
+
+            <TextView
+                android:id="@+id/debugSit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugGo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugCome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugDown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugRoll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"></TextView>
+
+
+            <TextView
+                android:id="@+id/debugLie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"></TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/debugDirectionName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="명령어"></TextView>
+
+            <TextView
+                android:id="@+id/debugDirectionSit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugDirectionGo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugDirectionCome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugDirectionDown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0"></TextView>
+
+            <TextView
+                android:id="@+id/debugDirectionRoll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0"></TextView>
+
+
+            <TextView
+                android:id="@+id/debugDirectionLie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0"></TextView>
+        </LinearLayout>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package com.zs.mydog.data
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.zs.mydog.data.common.RandomUtil
 import kotlin.math.max
@@ -9,12 +10,27 @@ class Dog {
 
     companion object {
         const val MIN_WEIGHT = 10
-        const val DIRECTION_TIME = 2000L
+        const val DIRECTION_TIME = 3000L
+        const val DIRECTION_ACTION_DOWN_WEIGHT = 3
+
+        const val ACTION_DOWN_WEIGHT = 10
     }
 
-    var actionHistoryLimit = 5
     val actionHistory = ArrayList<DogAction>()
     val currentDirection = MutableLiveData<Direction?>()
+
+    private var directTime: Long = 0L
+    private var isActionFromDirection = false
+    private var isDirectionRewarded = false
+
+    val weightedActionTypes = arrayOf(
+        DogAction.Type.SIT,
+        DogAction.Type.GO_AWAY,
+        DogAction.Type.COME,
+        DogAction.Type.DOWN,
+        DogAction.Type.ROLL,
+        DogAction.Type.BANG
+    )
 
     var directions = ArrayList<Direction>()
     var actions = ArrayList<DogAction>()
@@ -28,32 +44,54 @@ class Dog {
         Direction.Type.values().forEach {
             directions.add(Direction(it))
         }
-        DogAction.Type.values().forEach {
+
+        weightedActionTypes.forEach {
             actions.add(DogAction(it))
         }
     }
 
-    fun getNextAction(): DogAction? {
-        val weightArray = actions.map { it.weight }.toTypedArray()
-        val actionIndex = RandomUtil.weightedIndex(weightArray)
+    fun findDogAction(type: DogAction.Type): DogAction? {
+        return actions.find { type == it.type }
+    }
 
+    private fun getNextAction(): DogAction? {
+        val weightArray = actions.map { it.weight }.toTypedArray()
+
+        if (isDirectionExpired()) {
+            // 명령어 시간 초과
+            isActionFromDirection = false
+        } else {
+            // 명령어가 효과 있을 때
+            currentDirection.value?.actionWeights?.also { directionWeights ->
+                actions.forEachIndexed { index, dogAction ->
+                    weightArray[index] =
+                        weightArray[index] + (directionWeights[dogAction.type] ?: 0) * 10
+                }
+            }
+            isActionFromDirection = true
+        }
+
+        val actionIndex = RandomUtil.weightedIndex(weightArray)
         return actions.getOrNull(actionIndex)
     }
 
-    fun doAction(action: DogAction) {
+    private fun changeAction(action: DogAction) {
         actionHistory.add(0, action)
-        while (actionHistory.size > actionHistoryLimit) {
-            actionHistory.removeAt(actionHistoryLimit)
+        while (actionHistory.size > 1) {
+            actionHistory.removeAt(actionHistory.size - 1)
         }
 
-        currentAction.postValue(action)
+        currentAction.value = action
         val randomSecond = Random.nextInt(5, 10)
-        actionDelay.postValue(randomSecond * 1000L)
+        actionDelay.value = randomSecond * 1000L
     }
 
-    fun onDirect(type: Direction.Type) {
+    fun onDirection(type: Direction.Type) {
         currentDirection.value = directions.find { it.type == type }
         directionDelay.value = DIRECTION_TIME
+        directTime = System.currentTimeMillis()
+        isDirectionRewarded = false
+        isActionFromDirection = false
     }
 
     fun updateTime(time: Long) {
@@ -65,27 +103,64 @@ class Dog {
         actionDelay.value = max((actionDelay.value ?: 0) - time, 0L)
 
         if (actionDelay.value == 0L) {
-            onFinishActionWithoutReward()
+            onFinishAction()
         }
     }
 
     fun onFinishDirection() {
-        currentDirection.value?.also { direction ->
-            currentAction.value?.also { action ->
-                direction.weightDown(action.type, 1)
-            }
+        if (!isDirectionRewarded) {
+            onNoRewardFromDirection()
         }
-        currentDirection.value = null
     }
 
     fun onReceiveReward() {
-        currentDirection.value?.also { direction ->
-            currentAction.value?.also { action ->
-                direction.weightUp(action.type, Random.nextInt(3))
+        if (currentAction.value?.type == DogAction.Type.EAT) {
+            return
+        }
+
+        if (isActionFromDirection) {
+            if (!isDirectionRewarded) {
+                rememberCurrentDirection()
+                isDirectionRewarded = true
+            }
+        } else {
+            likeCurrentAction()
+        }
+
+        currentAction.value = DogAction(DogAction.Type.EAT)
+    }
+
+    private fun onFinishAction() {
+        Log.d("dog", "onFinishActionWithoutReward")
+        if (isActionFromDirection) {
+            if (!isDirectionRewarded) {
+                onNoRewardFromDirection()
+            }
+        } else {
+            currentAction.value?.weightDown(ACTION_DOWN_WEIGHT)
+            actions.forEach {
+                it.weightDown(ACTION_DOWN_WEIGHT)
             }
         }
 
-        val weightBonus = arrayOf(3, 1, 1, 0, 0)
+        getNextAction()?.also { changeAction(it) }
+    }
+
+
+    private fun onNoRewardFromDirection() {
+        currentDirection?.value?.also { direction ->
+            currentAction?.value?.also { action ->
+                direction.weightDown(action.type, DIRECTION_ACTION_DOWN_WEIGHT)
+                Log.d("dog", "onNoRewardFromDirection")
+            }
+        }
+    }
+
+    private fun likeCurrentAction() {
+        val weightBonus = arrayOf(3, 3, 1, 0, 0)
+        currentAction.value?.apply {
+            weightUp((actionDelay.value ?: 0).toInt() / 2000)
+        }
         actionHistory.forEachIndexed { index, dogAction ->
             actions.find {
                 it.type == dogAction.type
@@ -94,17 +169,24 @@ class Dog {
             }
         }
 
-        currentAction.value = DogAction(DogAction.Type.EAT)
+        Log.d("dog", "likeCurrentAction")
     }
 
-    fun onFinishActionWithoutReward() {
+    private fun rememberCurrentDirection() {
         currentDirection.value?.also {
-            currentAction.value?.apply {
-                it.weightDown(type, 1)
-                weightDown(1)
-            }
+            weightUpOnDirection(it, Random.nextInt(10))
         }
 
-        getNextAction()?.also { doAction(it) }
+        Log.d("dog", "rememberCurrentDirection")
+    }
+
+    private fun weightUpOnDirection(direction: Direction, weight: Int) {
+        currentAction.value?.also { action ->
+            direction.weightUp(action.type, weight)
+        }
+    }
+
+    private fun isDirectionExpired(): Boolean {
+        return System.currentTimeMillis() - directTime > DIRECTION_TIME
     }
 }
